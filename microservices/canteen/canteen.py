@@ -8,11 +8,13 @@ import requests
 
 app = Flask(__name__)
 
-# main index
+# canteen menus endpoint
 @app.route('/menus')
 def canteen_menus():
 	
 	r = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/canteen')
+	if r.status_code!=200:
+		abort(404)
 	json_r=r.json()
 
 	return jsonify(json_r)
