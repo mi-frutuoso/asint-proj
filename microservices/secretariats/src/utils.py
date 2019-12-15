@@ -37,7 +37,7 @@ class Storage:
                 return "ok"
             return "notok"
 
-    def delete(self, ID): #not working
+    def delete(self, ID):
         for i, s in enumerate(self.secretariatList):
             if ID in s.id:
                 del self.secretariatList[i]

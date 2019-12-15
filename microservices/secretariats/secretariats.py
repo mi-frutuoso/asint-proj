@@ -84,7 +84,7 @@ def edit_secretariat(id):
     else:
         return "XXXX" #pass
 
-# delete secretariat - 200 but not working yet
+# delete secretariat
 @app.route('/deleteSecretariat/<id>', methods=['GET'])
 def delete_secretariat(id):
     answer = st.delete(id)
