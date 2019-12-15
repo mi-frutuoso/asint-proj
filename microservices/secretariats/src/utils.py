@@ -9,6 +9,12 @@ class Secretariat:
         self.id = hashlib.sha1(str.encode(location+name)).hexdigest()
         print('[created secretariat w/ id = '+self.id+']')
 
+    def update(self, newInfo):
+        self.location = newInfo["location"]
+        self.name = newInfo["name"]
+        self.description =  newInfo["description"]
+        self.opening_hours = newInfo["opening_hours"]
+
 class Storage:
     def __init__ (self):
         self.secretariatList = []
@@ -23,14 +29,20 @@ class Storage:
         if s.location not in self.localList:
             self.localList.append(s.location)
         return s.id
-    
-        # testar
-        # s_obj = {
-        #     'location':local,
-        #     'name':name,
-        #     'description':descr,
-        #     'opening_hours':hours
-        # }
+
+    def edit(self, ID, newInfo):
+        for s in self.secretariatList:
+            if ID in s.id:
+                s.update(newInfo) 
+                return "ok"
+            return "notok"
+
+    def delete(self, ID): #not working
+        for i, s in enumerate(self.secretariatList):
+            if ID in s.id:
+                del self.secretariatList[i]
+                return "ok"
+            return "notok"
 
     def getSecretariat(self, ID):
         for s in self.secretariatList:
@@ -43,7 +55,19 @@ class Storage:
                 return(obj)
 
     def listSecLocations(self):
-        return self.localList
+        local_list = []
+        for local in self.localList:
+            local_list.append(local)
+        return local_list
     
     def listAll(self):
-        return self.secretariatList
+        list_all = []
+        for s in self.secretariatList:
+            obj = {}
+            obj["location"] = s.location
+            obj["name"] = s.name
+            obj["description"] = s.description
+            obj["opening_hours"] = s.opening_hours
+            obj["id"] = s.id
+            list_all.append(obj)
+        return list_all

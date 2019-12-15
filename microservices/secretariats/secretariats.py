@@ -59,24 +59,38 @@ def get_locations():
     list_ = st.listSecLocations()
     if list_ == None:
         return "list locations error or empty"
-    dict_ = convert_list(list_)
-    return dict_
-
-def convert_list(lst): 
-    it = iter(lst) 
-    res_dct = dict(zip(it, it)) 
-    return res_dct 
+    return jsonify(list_)
 
 # list secretariat locations
-@app.route('/listAll')
+@app.route('/listAll', methods=['GET'])
 def get_allSec():
     list_ = st.listAll()
     if list_ == None:
         return "list all secretariats error or empty"
-    print(list_)
-    dict_ = convert_list(list_)
-    return dict_
+    return jsonify(list_)
 
+# edit secretariat
+@app.route('/editSecretariat/<id>', methods=['POST'])
+def edit_secretariat(id):
+    if(request.is_json):
+        rcvd_json = request.get_json(force=True)
+        print('data from client: ')
+        print(id)
+        print(rcvd_json)
+        answer = st.edit(id, rcvd_json)
+        ret = {'answer':answer}
+        jsonify(ret)
+        return ret
+    else:
+        return "XXXX" #pass
+
+# delete secretariat - 200 but not working yet
+@app.route('/deleteSecretariat/<id>', methods=['GET'])
+def delete_secretariat(id):
+    answer = st.delete(id)
+    ret = {'answer':answer}
+    jsonify(ret)
+    return ret
 
 if __name__ == '__main__':
 

@@ -42,6 +42,26 @@ def canteen_menus():
 	json_r = r.json()
 	return jsonify(json_r)
 
+# secretariat listall endpoint
+@app.route('/secretariats')	
+def list_secretariats():
+
+	r = requests.get('http://'+server_secretariats+'/listAll')
+	if r.status_code!=200:
+		abort(r.status_code)
+	json_r = r.json()
+	return jsonify(json_r)
+
+# get secretariat endpoint
+@app.route('/secretariats/<id>')	
+def get_secretariat(id):
+	
+	r = requests.get('http://'+server_secretariats+'/getSecretariat/'+id)
+	if r.status_code!=200:
+		abort(r.status_code)
+	json_r = r.json()
+	return jsonify(json_r)
+
 
 if __name__ == '__main__':
 
