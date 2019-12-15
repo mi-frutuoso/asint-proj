@@ -25,14 +25,23 @@ This README file helps to understand each component present in this web applicat
     - [Canteen](#canteen-canteenpy)
 - [Mobile application](#mobile-application-mobilepy)
 
-## Server: `app.py`
+## Package dependencies
+
+This project uses the following packages:
+
+  - `flask`;
+  - `requests`;
+
+## Entities  
+
+### Server: `app.py`
 
   - running on `port=5000`
 
 responsible for backend management
 
 
-### Admin Pages
+#### Admin Pages
 
 TODO: admin authentication
 
@@ -52,33 +61,108 @@ http://127.0.0.1:5000/frontend/addSecretariat
 
   - associated template: `add.html`
 
-## API: `API.py`
+### API: `API.py`
 
   - running on `port=5100`
 
-Set of API access points the backend server has to communicate with the microservices.
+Independent application that works as a set of API access points the backend server has to communicate with the microservices.
 
-## Microservices
+#### Rooms' access points
 
-Set of independent services that provide several information to the main backend server.
+Find the location (building and campus) of a specific room given its `id`, by accessing the `Rooms` service:
 
-### Rooms: `rooms.py`
+````
+http://127.0.0.1:5100/location/<ID>
+````
+
+Retrieve the schedule of a specific room given its `id`, by accessing the `Rooms` service:
+
+````
+http://127.0.0.1:5100/timetable/<ID>
+````
+
+#### Secretariats' access points
+
+Get all existing secretariats, by accessing the `Secretariat` service:
+
+````
+http://127.0.0.1:5100/secretariats
+````
+
+View the details of a specific secretariat with `id=ID`, by accessing the `Secretariat` service:
+
+````
+http://127.0.0.1:5100/secretariats/<ID>
+````
+
+#### Canteen's access points
+
+Retrieve the menu of the IST canteen, by accessing the `Canteen` service:
+
+````
+http://127.0.0.1:5100/menus
+````
+
+
+### Microservices
+
+Set of independent application services that provide several information to the main backend server.
+
+#### Rooms: `rooms.py`
 
   - running on `port=5400`
   - API interaction to Fenix
   - API interaction to server (Read)
 
-### Secretariats: `secretariats.py`
+AP that retrieves the location (building and campus) of a specific room given its `id`:
+
+````
+http://127.0.0.1:5400/location/<ID>
+````
+
+AP that retrieves the schedule of a specific room given its `id`:
+
+````
+http://127.0.0.1:5400/timetable/<ID>
+````
+
+#### Secretariats: `secretariats.py`
 
   - running on `port=5200`
   - API interaction to server (R/Write)
 
-### Canteen: `canteen.py`
+API that retrieves all existing secretariats:
+
+````
+http://127.0.0.1:5200/listAll
+````
+
+API that retrieves the details of a specific secretariat with `id=ID`:
+
+````
+http://127.0.0.1:5200/getSecretariat/<ID>
+````
+
+#### Canteen: `canteen.py`
 
   - running on `port=5300`
   - API interaction to Fenix
   - API interaction to server (R)
 
-## Mobile application: `mobile.py`
+AP that retrieves the menu of the IST canteen:
+
+````
+http://127.0.0.1:5300/menus
+````
+
+### Mobile application: `mobile.py`
 
   - running on `port=5000` (should be changed to 5500, for example)
+
+Main page that redirects to a custom FenixEdu application webpage that asks the user its authorization to use their account (personal information) in that application:
+
+````
+http://127.0.0.1:5000/
+````
+
+If the user authorizes, they will be redirected to a homepage that displays its username and photo. From now on, the previous link will redirect to this homepage.
