@@ -31,35 +31,56 @@ This project uses the following packages:
 
   - `flask`;
   - `requests`;
+  - `flask-login`;
 
 ## Entities  
 
 ### Server: `app.py`
 
-  - running on `port=5000`
+  - running on `port=5500`
 
 responsible for backend management
 
 
 #### Admin Pages
 
-TODO: admin authentication
-
-Check all existing secretariats (with link to edit and delete a specific one):
+The main Admin page is available at
 
 ````
-http://127.0.0.1:5000/frontend/listSecretariats
+http://127.0.0.1:5500/admin
+````
+
+and a message will be displayed if the admin is not logged in.
+Admin authentication is performed at:
+
+````
+http://127.0.0.1:5500/admin/login
+````
+
+When the credentials are accepted (`username: admin; password: admin`), the page will redirect to the main Admin page, but more features will be then displayed.
+
+##### Check all existing secretariats (with link to edit and delete a specific one):
+
+````
+http://127.0.0.1:5500/frontend/listSecretariats
 ````
 
   - associated templates: `secretariats.html`, `edit.html`
 
-Add a new secretariat:
+##### Add a new secretariat:
 
 ````
-http://127.0.0.1:5000/frontend/addSecretariat
+http://127.0.0.1:5500/frontend/addSecretariat
 ````
 
   - associated template: `add.html`
+
+Admin logout is performed at:
+
+````
+http://127.0.0.1:5500/admin/logout
+````
+
 
 ### API: `API.py`
 
@@ -157,7 +178,7 @@ http://127.0.0.1:5300/menus
 
 ### Mobile application: `mobile.py`
 
-  - running on `port=5000` (should be changed to 5500, for example)
+  - running on `port=5000`
 
 Main page that redirects to a custom FenixEdu application webpage that asks the user its authorization to use their account (personal information) in that application:
 

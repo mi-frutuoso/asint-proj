@@ -28,36 +28,42 @@ input[type=submit]:hover {
 
 div {
   border-radius: 5px;
-  background-color: #f2f2f2;
+  background-color: #fff; /*f2f2f2*/
   padding: 20px;
 }
 </style>
 <head>
   <title>Secretariat | Edit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> <!-- for container -->
 </head>
 <body>
-<h2>Secretariat microservice access</h2>
-<h3>Edit Secretariat</h3>
-
-<div>
-  <!-- <form action = "/microservices/addSecretariat" method="post"> -->
-  <form action = "/editSecretariat/{{ id }}" method="post">
-    
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Secretariat name.." value="{{ name }}" required>
-    
-    <label for="location">Location</label>
-    <input type="text" id="location" name="location" placeholder="Secretariat location.." value="{{ location }}" required>
-    
-    <label for="description">Description</label>
-    <input type="text" id="description" name="description" placeholder="Secretariat description.." value="{{ description }}" required>
-    
-    <label for="opening_hours">Opening hours</label>
-    <input type="text" id="opening_hours" name="opening_hours" placeholder="Secretariat opening hours.." value="{{ opening_hours }}" required>
-  
-    <input type="submit" value="Submit">
-  </form>
+<div class="container">
+  <h2>Secretariat microservice access</h2>
+  <a href="/frontend/listSecretariats"><button type="button" class="btn">Return to Secretariat list</button></a>
+  <div class="container">
+    <h3>Edit Secretariat</h3>
+    <div class="container">
+      <!-- <form action = "/microservices/addSecretariat" method="post"> -->
+      <form action = "/editSecretariat/{{ id }}" method="post">
+        
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Secretariat name.." value="{{ name }}" required>
+        
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" placeholder="Secretariat location.." value="{{ location }}" required>
+        
+        <label for="description">Description</label>
+        <input type="text" id="description" name="description" placeholder="Secretariat description.." value="{{ description }}" required>
+        
+        <label for="opening_hours">Opening hours</label>
+        <input type="text" id="opening_hours" name="opening_hours" placeholder="Secretariat opening hours.." value="{{ opening_hours }}" required>
+      
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+  </div>
 </div>
 
 </body>

@@ -8,45 +8,48 @@ import json
 import sys
 import requests
 sys.path.insert(0, 'src') #include folder src
-from src.utils import Storage
+# from src.utils import User
+
+from flask_login import LoginManager
+from flask import session, redirect, url_for, escape
 
 app = Flask(__name__)
-st = Storage()
+
+app.secret_key = b'\x1a2\xc5\xe81\x12\xc3\x80JPp\xbe\xa1\x9a\xe1,'
 
 
-# main index
 @app.route('/')
-def hello_world():
-    s = st.getSize()
-    ks = st.getKeys()
-    return render_template("index.html", counter = s, keys = ks)
+def hello():
+    return '<h2>Welcome to backend server.</h2>'
+
+@app.route('/admin')
+def index():
+    if 'username' in session:
+        return render_template('admin.html', user=escape(session['username']))
+    return render_template('admin_logout.html')
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form['username'] == 'admin' and request.form['password'] == 'admin':
+            session['username'] = request.form['username']
+            return redirect(url_for('index'))
+    return render_template('admin_login.html')
+
+@app.route('/admin/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
 
 # add secretariat front-end
-@app.route('/frontend/addSecretariat') #get, post
+@app.route('/frontend/addSecretariat')
 def index_add(result=None):
-    if request.args.get('location', None):
-        result = process_text(request.args['location'])
-    return render_template('add.html', result=result)
+    if 'username' in session:
+        return render_template('add.html', result=result)
+    return render_template('admin_logout.html')
 
-def process_text(text):
-    return "FOO" + text
-
-# add specific secretariat TEST
-@app.route('/test/apiaddSpecificSecretariat')
-def send_spost():
-    json_send = {
-        'location':'civil',
-        'name':'secretaria de civil',
-        'description':'descri',
-        'opening_hours':'2a-6a 9h-16h'
-    }
-    print(json_send) #debug
-    r = requests.post('http://localhost:5200/addSecretariat', json=json_send)
-    print(r.json())
-    return sent_spost(json.dumps(json_send), r.text) #render_template('movies.html', movies=json.loads(r.text)['movies'])
-
-def sent_spost(sent, recv):
-    return "<p>sent: "+sent+"</p><p>received: "+recv+"</p>"
 
 # add secretariat -- route that processes the input from the frontend form (add.html)
 @app.route('/api/addSecretariat', methods=['POST'])
@@ -63,45 +66,37 @@ def send_post():
     }
     print(obj) #debug
     r = requests.post('http://localhost:5200/addSecretariat', json=obj) # forward form data to API of microservice Secretariats
+    print(r.status_code)
     print(r.json()) #debug -- print response from API
-    return sent_post(json.dumps(obj), r.text) #render_template('movies.html', movies=json.loads(r.text)['movies'])
+    if(r.status_code == 200):
+        return "Success. <a href='/frontend/listSecretariats'>Go to secretariats page</a>"
+    return "An error occured (%d). <a href='/frontend/listSecretariats'>Go to secretariats page</a>" % (r.status_code)
 
-def sent_post(sent, recv):
-    return "<p>sent: "+sent+"</p><p>received: "+recv+"</p><p><a href='/frontend/listSecretariats'>Go to secretariats page</a></p>"
-
-# @app.route('/some-url')
-# def get_data():
-#     return requests.get('http://example.com').content
-
-# read secretariat
-@app.route('/frontend/secretariats/<key>')
-def get_Value(key):
-    val = st.getValue(key)
-    if val == None:
-        return render_template("notFound.html", error_id=key)
-    return str(val) # default
 
 @app.route('/frontend/listSecretariats', methods=['GET'])
 def get_secretariats():
-    r = requests.get('http://localhost:5200/listAll')
-    if r.status_code!=200:
-       abort(404)
-    listSecretariats = r.json()
-    return render_template('secretariats.html', items=listSecretariats)
-
+    if 'username' in session:
+        r = requests.get('http://localhost:5200/listAll')
+        if r.status_code!=200:
+            abort(404)
+        listSecretariats = r.json()
+        return render_template('secretariats.html', items=listSecretariats)
+    return render_template('admin_logout.html')
+    
 # edit secretariat front-end
 @app.route('/frontendEditSecretariat/<id>') #get, post
 def index_edit(id):
-    s = get_secretariat(id)
-    return render_template("edit.html", 
-        location=s['location'], name=s['name'], description=s['description'], opening_hours=s['opening_hours'], id=id)
+    if 'username' in session:
+        s = get_secretariat(id)
+        return render_template("edit.html", 
+            location=s['location'], name=s['name'], description=s['description'], opening_hours=s['opening_hours'], id=id)
+    return render_template('admin_logout.html')
 
 def get_secretariat(id):
     r = requests.get('http://localhost:5200/getSecretariat/'+id)
     if r.status_code!=200:
        abort(404)
     return r.json()
-
 
 # handle form edit information
 @app.route('/editSecretariat/<id>', methods=['POST'])
@@ -120,12 +115,11 @@ def send_edit(id):
     print(obj) #debug
     r = requests.post('http://localhost:5200/editSecretariat/'+sID, json=obj) # forward form data to API of microservice Secretariats
     print(r.json()) #debug -- print response from API
-    return sent_edit(sID, json.dumps(obj), r.text)
-
-def sent_edit(ID, sent, recv):
-    return "<p>id: "+ID+"</p><p>sent edit info: "+sent+"</p><p>received: "+recv+"</p><p><a href='/frontend/listSecretariats'>Return to the previous page</a></p>"
+    if(r.status_code == 200):
+        return "Success. <a href='/frontend/listSecretariats'>Return to the previous page</a>"
+    return "An error occured (%d). <a href='/frontend/listSecretariats'>Return to the previous page</a>" % (r.status_code)
 
 
 if __name__ == '__main__':
 
-    app.run(port=5000, debug=True)
+    app.run(port=5500, debug=True)
