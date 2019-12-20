@@ -37,7 +37,7 @@ def main_menu():
 				resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
 				if resp.status_code==200:
 					r_json = resp.json()
-					return render_template("main_menu.html", username=r_json['username'], key=key, photo_data = r_json['photo']['data'], photo_type=r_json['photo']['type'])
+					return render_template("main_menu.html", username=r_json['name'], key=key, photo_data = r_json['photo']['data'], photo_type=r_json['photo']['type'])
 
 	redPage = fenixLoginpage % (client_id, redirect_uri)
 	return redirect(redPage)
@@ -56,7 +56,42 @@ def userAuthenticated():
 
 	abort(401)
 
+@app.route('/qrReader')
+def qr_reader():
 
+	name, key, photo_data, photo_type = Authentication()
+
+	return render_template("qr_reader.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)
+
+@app.route('/canteen')
+def canteen():
+
+	name, key, photo_data, photo_type = Authentication()
+
+	return render_template("canteen.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)
+
+@app.route('/validation')
+def validate():
+
+	name, key, photo_data, photo_type = Authentication()
+
+	return render_template("validation.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)	
+
+
+def Authentication():
+	if 'key' in request.args:
+
+		key = request.args['key']
+
+		for user in user_list:
+			if user.key==key:
+				params = {'access_token': user.access_token}
+				resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
+				if resp.status_code==200:
+					r_json = resp.json()
+					return r_json['name'], key, r_json['photo']['data'], r_json['photo']['type']
+	abort(401)
+	
 
 if __name__ == '__main__':
 
