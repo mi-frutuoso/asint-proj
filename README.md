@@ -8,9 +8,11 @@ The goal of this project is to develop a web application that makes use of the r
 
 This project was developed by the students:
 
-- [81305 - Pedro Direita]
+````
+81305 - Pedro Direita (MEEC)
 
-- [84303 - Maria Frutuoso]
+84303 - Maria Frutuoso (MEEC)
+````
 
 ## Content
 
@@ -34,6 +36,44 @@ This project uses the following packages:
   - `flask-login`;
 
 ## Entities  
+
+In this project, you may find each entity inside a different folder, organized as follows:
+
+````
+.
+├── API
+│   ├── API.py
+│   └── ...
+├── microservices
+│   ├── canteen                          
+│   │   └── canteen.py
+│   ├── rooms                             
+│   │   └── rooms.py
+│   ├── secretariats
+│   │   ├── src
+│   │   │   ├── __init__.py
+│   │   │   └── utils.py
+│   │   ├── templates
+│   │   │   └── index.html            # not useful
+│   │   └── secretariats.py
+├── mobile
+│   ├── templates                          
+│   │   └── main_menu.html
+│   ├── mobile.py                             
+│   └── users.py
+└── server
+    ├── src                          
+    │   └── utils.py                  # not useful
+    ├── templates                          
+    │   ├── add.html
+    │   ├── admin.html
+    │   ├── admin_login.html
+    │   ├── admin_logout.html
+    │   ├── edit.html
+    │   └── secretariats.html
+    └── app.py
+````
+
 
 ### Server: `app.py`
 

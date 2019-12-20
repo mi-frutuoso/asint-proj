@@ -25,17 +25,25 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
+  
 
 </head>
 <body>
+
+    {% if trigger %}
+    <script>
+        window.onload = function() {
+            alert("Incorrect credentials. Try again.");
+        }
+    </script>
+    {% endif %}
+
     <div class="container">
         <h2>Administration Pages</h2>
         <p>Please login.</p>
         <div class="container">
             <form method="post">
-                <!-- <p>Username: <input type=text name=username>
-                <p>Password: <input type=password name=password> -->
-                <div class="form-group">
+               <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" class="form-control" name="username">
                 </div>

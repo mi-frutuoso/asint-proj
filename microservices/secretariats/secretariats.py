@@ -16,7 +16,7 @@ st = Storage()
 # main index
 @app.route('/')
 def hello_world():
-    return "Welcome to microservice Secretariats"
+    return render_template("index.html")
 
 # add secretariat - API
 @app.route('/addSecretariat', methods=['POST'])
@@ -30,20 +30,14 @@ def add_secretariat():
         name = rcvd_json["name"]
         description = rcvd_json["description"]
         opening_hours = rcvd_json["opening_hours"]
-        #print(description)
+
         id=st.store(location, name, description, opening_hours)
         ret = {'answer':id}
         jsonify(ret)
         return ret # returns an answer (client is expecting a json, but the protocol can be changed)
-        #print(data)
-        #return data
-        #response = request.post('/microservices/addSecretariat', json=wrap)
-        #return get_Value(data) #return hello_world()
     else:
         return "XXXX" #pass
 
-        #dictToReturn = {'answer':42}
-        #jsonify(dictToReturn)
 
 # read secretariat
 @app.route('/getSecretariat/<key>')
@@ -87,10 +81,10 @@ def edit_secretariat(id):
 # delete secretariat
 @app.route('/deleteSecretariat/<id>', methods=['GET'])
 def delete_secretariat(id):
-    answer = st.delete(id)
-    ret = {'answer':answer}
-    jsonify(ret)
-    return ret
+    st.delete(id)
+    #ret = {'answer':answer}
+    #jsonify(ret)
+    return "ok"
 
 if __name__ == '__main__':
 

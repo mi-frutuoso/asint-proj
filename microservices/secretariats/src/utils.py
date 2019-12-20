@@ -38,11 +38,15 @@ class Storage:
             return "notok"
 
     def delete(self, ID):
-        for i, s in enumerate(self.secretariatList):
-            if ID in s.id:
+        for i, o in enumerate(self.secretariatList):
+            if o.id == ID:
                 del self.secretariatList[i]
-                return "ok"
-            return "notok"
+                break
+        # for i, s in enumerate(self.secretariatList):
+        #     if ID==s.id:
+        #         del self.secretariatList[i]
+        #         return "ok"
+        #     return "notok"
 
     def getSecretariat(self, ID):
         for s in self.secretariatList:
