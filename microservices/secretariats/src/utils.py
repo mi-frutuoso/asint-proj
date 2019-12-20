@@ -1,4 +1,6 @@
 import hashlib
+import pickle
+import os.path
 
 class Secretariat:
     def __init__(self, location, name, description, opening_hours):
@@ -17,8 +19,11 @@ class Secretariat:
 
 class Storage:
     def __init__ (self):
-        self.secretariatList = []
-        self.localList = []
+        if os.path.isfile('storage.dat'):
+            self.load()
+            print("[Secretariat storage loaded]")
+        else:
+            self.secretariatList = []
 
     def getSize(self):
         return len(self.secretariatList)
@@ -26,27 +31,24 @@ class Storage:
     def store(self, local, name, descr, hours):
         s = Secretariat(local, name, descr, hours)
         self.secretariatList.append(s)
-        if s.location not in self.localList:
-            self.localList.append(s.location)
+        self.export()
         return s.id
 
     def edit(self, ID, newInfo):
         for s in self.secretariatList:
             if ID in s.id:
-                s.update(newInfo) 
+                s.update(newInfo)
+                self.export() # update current state of storage 
+                #break        
                 return "ok"
-            return "notok"
+        return "notok"
 
     def delete(self, ID):
         for i, o in enumerate(self.secretariatList):
             if o.id == ID:
                 del self.secretariatList[i]
                 break
-        # for i, s in enumerate(self.secretariatList):
-        #     if ID==s.id:
-        #         del self.secretariatList[i]
-        #         return "ok"
-        #     return "notok"
+        self.export() # update current state of storage
 
     def getSecretariat(self, ID):
         for s in self.secretariatList:
@@ -57,12 +59,6 @@ class Storage:
                 obj["description"] = s.description
                 obj["opening_hours"] = s.opening_hours
                 return(obj)
-
-    def listSecLocations(self):
-        local_list = []
-        for local in self.localList:
-            local_list.append(local)
-        return local_list
     
     def listAll(self):
         list_all = []
@@ -75,3 +71,13 @@ class Storage:
             obj["id"] = s.id
             list_all.append(obj)
         return list_all
+
+    def export(self):
+        with open("storage.dat", 'wb') as fp:
+            pickle.dump(self.secretariatList, fp) #, protocol=pickle.HIGHEST_PROTOCOL
+
+    def load(self):
+        with open("storage.dat", 'rb') as f:
+            sl = pickle.load(f)
+        self.secretariatList = []
+        self.secretariatList = sl

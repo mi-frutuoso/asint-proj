@@ -23,8 +23,6 @@ def hello_world():
 def add_secretariat():
     if(request.is_json):
         rcvd_json = request.get_json(force=True)
-        print('data from client: ')
-        print(rcvd_json)
         # parse rcvd_json:
         location = rcvd_json["location"]
         name = rcvd_json["name"]
@@ -47,13 +45,6 @@ def get_secretariat(key):
         return "get secretariat error or inexisting"
     return s
 
-# list secretariat locations
-@app.route('/listLocations')
-def get_locations():
-    list_ = st.listSecLocations()
-    if list_ == None:
-        return "list locations error or empty"
-    return jsonify(list_)
 
 # list secretariat locations
 @app.route('/listAll', methods=['GET'])
@@ -68,9 +59,6 @@ def get_allSec():
 def edit_secretariat(id):
     if(request.is_json):
         rcvd_json = request.get_json(force=True)
-        print('data from client: ')
-        print(id)
-        print(rcvd_json)
         answer = st.edit(id, rcvd_json)
         ret = {'answer':answer}
         jsonify(ret)

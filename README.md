@@ -4,6 +4,7 @@ ASInt project - 1st semester 2019/2020
 
 The goal of this project is to develop a web application that makes use of the resources of IST, via FenixEdu API, using custom services that store important resources, accessible by WEB and REST interfaces. It was developed under the course `Internet Based Systems Architecture` (ASInt).
 
+
 ## Authors
 
 This project was developed by the students:
@@ -190,7 +191,10 @@ http://127.0.0.1:5400/timetable/<ID>
 #### Secretariats: `secretariats.py`
 
   - running on `port=5200`
-  - API interaction to server (R/Write)
+
+  - displays API endpoints (R/W) so that the admin of the backend server can interact with the data
+  
+  - offers data persistance (the current state of the list of secretariats is continuously saved)
 
 API that retrieves all existing secretariats:
 

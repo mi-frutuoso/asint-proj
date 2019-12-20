@@ -86,27 +86,37 @@ def send_post():
         'description':description,
         'opening_hours':opening_hours
     }
-    r = requests.post('http://'+server_secretariats+'/addSecretariat', json=obj) # forward form data to API of microservice Secretariats
-    print(r.status_code) # debug
-    json_response=r.json()
-    print(r.json()) #debug -- print response from API
-    write_log(backend_file, 'SECRETARIAT', 'admin - add - info:'+str(obj)+' - id:'+json_response['answer']+' (code:'+str(r.status_code)+')')
-    if(r.status_code == 200):
-        msg = "Success. %d" %(r.status_code)
-    else:
-        msg = "Error. %d" % (r.status_code)
-    return render_template('result.html', msg=msg, header="ADD")
+    try:
+        r = requests.post('http://'+server_secretariats+'/addSecretariat', json=obj) # forward form data to API of microservice Secretariats
+        #print(r.status_code) # debug
+        json_response=r.json()
+        #print(r.json()) #debug -- print response from API
+        write_log(backend_file, 'SECRETARIAT', 'admin - add - info:'+str(obj)+' - id:'+json_response['answer']+' (code:'+str(r.status_code)+')')
+        if(r.status_code == 200):
+            msg = "Success. %d" %(r.status_code)
+        else:
+            msg = "Error. %d" % (r.status_code)
+        return render_template('result.html', msg=msg, header="ADD")
+    except requests.exceptions.RequestException as e:
+        errcode = type(e).__name__
+        write_log(backend_file, 'SECRETARIAT', 'admin - add - error:'+errcode)
+        return render_template('result.html', msg="Secretariat not added. Connection error.", header="ADD")
 
 # request all existing secretariats
 @app.route('/frontend/listSecretariats', methods=['GET'])
 def get_secretariats():
     if 'username' in session:
-        r = requests.get('http://'+server_secretariats+'/listAll')
-        if r.status_code!=200:
-            abort(404)
-        listSecretariats = r.json()
-        write_log(backend_file, 'SECRETARIAT', 'admin - list'+' (code:'+str(r.status_code)+')')
-        return render_template('secretariats.html', items=listSecretariats)
+        try:
+            r = requests.get('http://'+server_secretariats+'/listAll')
+            if r.status_code!=200:
+                abort(404)
+            listSecretariats = r.json()
+            write_log(backend_file, 'SECRETARIAT', 'admin - list'+' (code:'+str(r.status_code)+')')
+            return render_template('secretariats.html', items=listSecretariats)
+        except requests.exceptions.RequestException as e:
+            errcode = type(e).__name__
+            write_log(backend_file, 'SECRETARIAT', 'admin - list - error:'+errcode)
+            return render_template('secretariats.html', error='yes')
     return render_template('admin_logout.html')
     
 # edit secretariat front-end
@@ -114,17 +124,24 @@ def get_secretariats():
 def index_edit(id):
     if 'username' in session:
         s = get_secretariat(id)
+        if s == None:
+            return render_template('result.html', msg="Secretariat cannot be edited. Connection error.", header="EDIT")
         write_log(backend_file, 'BACKEND:web', 'admin - editSecretariat')
         return render_template("edit.html", 
             location=s['location'], name=s['name'], description=s['description'], opening_hours=s['opening_hours'], id=id)
     return render_template('admin_logout.html')
 
 def get_secretariat(id):
-    r = requests.get('http://'+server_secretariats+'/getSecretariat/'+id)
-    write_log(backend_file, 'SECRETARIAT', 'admin - get - id:'+id+' (code:'+str(r.status_code)+')')
-    if r.status_code!=200:
-       abort(404)
-    return r.json()
+    try:
+        r = requests.get('http://'+server_secretariats+'/getSecretariat/'+id)
+        write_log(backend_file, 'SECRETARIAT', 'admin - get2edit - id:'+id+' (code:'+str(r.status_code)+')')
+        if r.status_code!=200:
+            abort(404)
+        return r.json()
+    except requests.exceptions.RequestException as e:
+        errcode = type(e).__name__
+        write_log(backend_file, 'SECRETARIAT', 'admin - get2edit - error:'+errcode)
+        return None
 
 # handle form edit information
 @app.route('/editSecretariat/<id>', methods=['POST'])
@@ -140,25 +157,34 @@ def send_edit(id):
         'description':description,
         'opening_hours':opening_hours
     }
-    print(obj) #debug
-    r = requests.post('http://'+server_secretariats+'/editSecretariat/'+sID, json=obj) # forward form data to API of microservice Secretariats
-    print(r.json()) #debug -- print response from API
-    write_log(backend_file, 'SECRETARIAT', 'admin - edit - id:'+sID+' - newInfo:'+str(obj)+' (code:'+str(r.status_code)+')')
-    if(r.status_code == 200):
-        msg = "Success. %d" %(r.status_code)
-    else:
-        msg = "Error. %d" % (r.status_code)
-    return render_template('result.html', msg=msg, header="EDIT")
+    #print(obj) #debug
+    try:
+        r = requests.post('http://'+server_secretariats+'/editSecretariat/'+sID, json=obj) # forward form data to API of microservice Secretariats
+        #print(r.json()) #debug -- print response from API
+        write_log(backend_file, 'SECRETARIAT', 'admin - edit - id:'+sID+' - newInfo:'+str(obj)+' (code:'+str(r.status_code)+')')
+        if(r.status_code == 200):
+            msg = "Success. %d" %(r.status_code)
+        else:
+            msg = "Error. %d" % (r.status_code)
+        return render_template('result.html', msg=msg, header="EDIT")
+    except requests.exceptions.RequestException as e:
+        errcode = type(e).__name__
+        write_log(backend_file, 'SECRETARIAT', 'admin - edit - error:'+errcode)
+        return render_template('result.html', msg="Secretariat not edited. Connection error.", header="EDIT")
 
 # handle delete request
 @app.route('/deleteSecretariat/<id>')
 def send_delete(id):
-    r = requests.get('http://'+server_secretariats+'/deleteSecretariat/'+id) # forward delete request to API of microservice Secretariats
-    print(r.json()) #debug -- print response from API
-    write_log(backend_file, 'SECRETARIAT', 'admin - delete - id:'+id+' (code:'+str(r.status_code)+')')
-    if(r.status_code == 200):
-        return "ok"
-    return "not ok"
+    try:
+        r = requests.get('http://'+server_secretariats+'/deleteSecretariat/'+id) # forward delete request to API of microservice Secretariats
+        write_log(backend_file, 'SECRETARIAT', 'admin - delete - id:'+id+' (code:'+str(r.status_code)+')')
+        if(r.status_code == 200):
+            return "ok"
+        return "not ok"
+    except requests.exceptions.RequestException as e:
+        errcode = type(e).__name__
+        write_log(backend_file, 'SECRETARIAT', 'admin - delete - error:'+errcode)
+        return render_template('secretariats.html', error='yes')
 
 # show log files
 @app.route('/frontend/logs')
@@ -199,6 +225,26 @@ def show_logs():
 
         return render_template('logs.html', back=back_list, api=api_list, auth=auth_list)
     return render_template('admin_logout.html')
+
+# handle clear log files request
+@app.route('/clearLogs')
+def clear_logs():
+    try:
+        open(backend_file, 'w').close()
+    except IOError:
+        print('%s not found' %backend_file)
+
+    try:
+        open('../API/'+api_file, 'w').close()
+    except IOError:
+        print('%s not found' %api_file)
+
+    try:    
+        open(auth_file, 'w').close() # TODO: change dir file
+    except IOError:
+        print('%s not found' %auth_file)
+    return render_template('logs.html')
+
 
 if __name__ == '__main__':
 
