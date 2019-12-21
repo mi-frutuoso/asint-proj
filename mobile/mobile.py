@@ -4,6 +4,8 @@ from flask import request
 from flask import jsonify
 from flask import abort
 from flask import redirect
+from flask import send_file
+
 import json
 import requests
 from users import User
@@ -79,7 +81,15 @@ def validate():
 
 	name, key, photo_data, photo_type = Authentication()
 
-	return render_template("validation.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)	
+	return render_template("validation.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)
+
+@app.route('/qr-scanner.min.js')
+def file1_send():
+	return send_file("qr_scanner/qr-scanner.min.js")	
+
+@app.route('/qr-scanner-worker.min.js')
+def file2_send():	
+	return send_file("qr_scanner/qr-scanner-worker.min.js")
 
 secret_submitted = threading.Event()
 responsible_user = None
