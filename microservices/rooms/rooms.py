@@ -25,14 +25,16 @@ def room_location(id):
 	events_r = json_r['events']
 
 	#Request floor information
-	r = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces/'+json_r['parentSpace']['id'])
-	if r.status_code!=200:
-		abort(404)
-	json_r=r.json()
-	if 'parentSpace' not in json_r:
+	try:
+		r = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces/'+json_r['parentSpace']['id'])
+		if r.status_code!=200:
+			abort(404)
+		json_r=r.json()
+		if 'parentSpace' not in json_r:
+			abort(500)
+		building_r = json_r['parentSpace']['name']
+	except requests.exceptions.RequestException:
 		abort(500)
-	building_r = json_r['parentSpace']['name']
-
 	#Return json
 	return jsonify(name=name_r, campus=campus_r, building=building_r, events=events_r)
 

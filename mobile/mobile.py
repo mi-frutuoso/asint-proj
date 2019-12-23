@@ -42,10 +42,13 @@ def main_menu():
 		for user in user_list:
 			if user.key==key:
 				params = {'access_token': user.access_token}
-				resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
-				if resp.status_code==200:
-					r_json = resp.json()
-					return render_template("main_menu.html", username=r_json['name'], key=key, photo_data = r_json['photo']['data'], photo_type=r_json['photo']['type'])
+				try:
+					resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
+					if resp.status_code==200:
+						r_json = resp.json()
+						return render_template("main_menu.html", username=r_json['name'], key=key, photo_data = r_json['photo']['data'], photo_type=r_json['photo']['type'])
+				except requests.exceptions.RequestException:
+					abort(500)
 
 	redPage = fenixLoginpage % (client_id, redirect_uri)
 	return redirect(redPage)
@@ -54,15 +57,18 @@ def main_menu():
 def userAuthenticated():
 	code = request.args['code']
 	payload = {'client_id': client_id, 'client_secret': clientSecret, 'redirect_uri' : redirect_uri, 'code' : code, 'grant_type': 'authorization_code'}
-	response = requests.post(fenixacesstokenpage, params = payload)
+	try:
+		response = requests.post(fenixacesstokenpage, params = payload)
 
-	if response.status_code==200:
-		r_json = response.json()
-		user = User(r_json['access_token'])
-		user_list.append(user)
-		return redirect('/?key='+user.key)
-
-	abort(401)
+		if response.status_code==200:
+			r_json = response.json()
+			user = User(r_json['access_token'])
+			user_list.append(user)
+			return redirect('/?key='+user.key)
+		abort(401)
+	except requests.exceptions.RequestException:
+		abort(500)
+		
 
 @app.route('/qrReader')
 def qr_reader():
@@ -76,10 +82,12 @@ def canteen():
 
 	name, key, photo_data, photo_type = Authentication()
 
-	resp = requests.get(uri_api+"/menus")
-	if resp.status_code==200:
-		r_json = resp.json()
-
+	try:
+		resp = requests.get(uri_api+"/menus")
+		if resp.status_code==200:
+			r_json = resp.json()
+	except requests.exceptions.RequestException:
+		abort(500)
 	return render_template("canteen.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type, menus=r_json)
 
 @app.route('/validation')
@@ -132,17 +140,19 @@ def val_wait():
 	for user in user_list:
 		if user.key==key:
 			user.event.wait()
-
 			params = {'access_token': user.visitor_token}
-			resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
-			if resp.status_code==200:
-				r_json = resp.json()
-			else:
-				abort(500)
-			
-			user.visitor_token = None
-			user.event = None
-
+			try:
+				resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
+				if resp.status_code==200:
+					r_json = resp.json()
+				else:
+					abort(500)
+				
+				user.visitor_token = None
+				user.event = None
+			except requests.exceptions.RequestException as e:
+				errcode = type(e).__name__
+				return "An error occurred (%s)." % errcode
 			break
 
 	ret_html = """
@@ -165,22 +175,27 @@ def val_response():
 		if user.secret==reqSecret:
 			flag_found=1
 			params = {'access_token': user.access_token}
-			resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
-			if resp.status_code==200:
-				r_json = resp.json()
-			else:
-				abort(500)
-			# clear secret
-			user.secret=None
-			
-			for user2 in user_list:
-				if user2.key==key:
-					user.visitor_token=user2.access_token
-					break
+			try:
+				resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
+				if resp.status_code==200:
+					r_json = resp.json()
+				else:
+					abort(500)
+				# clear secret
+				user.secret=None
+				
+				for user2 in user_list:
+					if user2.key==key:
+						user.visitor_token=user2.access_token
+						break
 
-			# now notice the searched user that their secret has been used
-			user.event.set()
-			break
+				# now notice the searched user that their secret has been used
+				user.event.set()
+				break
+			except requests.exceptions.RequestException as e:
+				errcode = type(e).__name__
+				extra_str = ", but an error occurred (%s)" % errcode
+				return render_template("validate.html", notFound='yes', secret=reqSecret+extra_str, username=name, key=key, photo_data = photo_data, photo_type=photo_type)
 
 	if(flag_found == 0):
 		return render_template("validate.html", notFound='yes', secret=reqSecret, username=name, key=key, photo_data = photo_data, photo_type=photo_type)	
@@ -194,10 +209,14 @@ def Authentication():
 		for user in user_list:
 			if user.key==key:
 				params = {'access_token': user.access_token}
-				resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
-				if resp.status_code==200:
-					r_json = resp.json()
-					return r_json['name'], key, r_json['photo']['data'], r_json['photo']['type']
+				try:
+					resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
+					if resp.status_code==200:
+						r_json = resp.json()
+						return r_json['name'], key, r_json['photo']['data'], r_json['photo']['type']
+				except requests.exceptions.RequestException:
+					abort(500)
+
 	abort(401)
 
 
