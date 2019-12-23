@@ -13,7 +13,7 @@ app = Flask(__name__)
 @app.route('/menus')
 def canteen_menus():
 	try:
-		r = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/canteen?day=26/1/2019')
+		r = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/canteen')
 		if r.status_code!=200:
 			abort(404)
 		json_r=r.json()
