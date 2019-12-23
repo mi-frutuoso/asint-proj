@@ -5,9 +5,5 @@ class User:
 		self.access_token = access_token
 		self.key = str(uuid.uuid4())
 		self.secret = None
-
-	def updateSecret(self, secret):
-		self.secret = secret
-
-	def clearSecret(self):
-		self.secret = None
+		self.event = None
+		self.visitor_token = None

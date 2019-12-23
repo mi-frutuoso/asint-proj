@@ -50,7 +50,7 @@
 			}
 			QrScanner.scanImage(file)
 				.then(result => {
-					xhttp.open("GET", "http://127.0.0.1:5100/" + result, true);
+					xhttp.open("GET", "{{api}}/" + result, true);
 					xhttp.send(); 			
 				})
 				.catch(error => alert("No QR code found"));

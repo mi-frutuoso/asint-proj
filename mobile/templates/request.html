@@ -23,7 +23,7 @@
 					document.getElementById("demo").innerHTML =	this.responseText;
 				}
 			};
-			xhttp.open("GET", "/validation/wait", true);
+			xhttp.open("GET", "/validation/wait?key={{key}}", true);
 			xhttp.send();
 		}
 

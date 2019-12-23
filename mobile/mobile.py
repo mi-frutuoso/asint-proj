@@ -16,6 +16,8 @@ import threading
 
 redirect_uri = "http://127.0.0.1:5000/userAuth" # this is the address of the page on this app
 
+uri_api = "http://127.0.0.1:5100"
+
 
 client_id= "1695915081465951" # copy value from the app registration
 clientSecret = "dV8OqovYTvGa/xJhh5G5+Ciyz40LlG2f8KEk7hfRexhjKsJvT5xqbwdAbO+aRn5/wZ26mRal+gg5KaS4iZeBWg==" # copy value from the app registration
@@ -67,14 +69,14 @@ def qr_reader():
 
 	name, key, photo_data, photo_type = Authentication()
 
-	return render_template("qr_reader.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)
+	return render_template("qr_reader.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type, api=uri_api)
 
 @app.route('/canteen')
 def canteen():
 
 	name, key, photo_data, photo_type = Authentication()
 
-	resp = requests.get("http://127.0.0.1:5100/menus")
+	resp = requests.get(uri_api+"/menus")
 	if resp.status_code==200:
 		r_json = resp.json()
 
@@ -94,12 +96,6 @@ def file1_send():
 @app.route('/qr-scanner-worker.min.js')
 def file2_send():	
 	return send_file("qr_scanner/qr-scanner-worker.min.js")
-
-secret_submitted = threading.Event()
-responsible_user = None
-responsible_photoData = None
-responsible_photoType = None
-
 
 # request secret
 @app.route('/validation/request')
@@ -121,7 +117,8 @@ def val_request():
 	
 	for user in user_list:
 		if user.key==key:
-			user.updateSecret(secret)
+			user.secret=secret
+			user.event=threading.Event()
 			break
 	# "wait" for some user to request the secret
 	return render_template("request.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type, secret=secret)
@@ -129,30 +126,31 @@ def val_request():
 # validate secret
 @app.route('/validation/wait')
 def val_wait():
-	print("estou à espera")
-	# prepare thread
-	thread = threading.Thread(target=val_response)
-	thread.start()
-	secret_submitted.wait()
-	global responsible_user
-	global responsible_photoData
-	global responsible_photoType
 
-	if responsible_user == None:
-		print("*********************vou mandar nada")
-		return 'yo'
+	name, key, photo_data, photo_type = Authentication()
+
+	for user in user_list:
+		if user.key==key:
+			user.event.wait()
+
+			params = {'access_token': user.visitor_token}
+			resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
+			if resp.status_code==200:
+				r_json = resp.json()
+			else:
+				abort(500)
+			
+			user.visitor_token = None
+			user.event = None
+
+			break
 
 	ret_html = """
-		<p><b>"""+responsible_user+"""</b> has just used your secret.</p>
+		<p><b>"""+r_json['name']+"""</b> has just used your secret.</p>
 		<div class="col-xs-3">
-			<img src="data:"""+responsible_photoType+"""+;base64,"""+responsible_photoData+"""" align="right"/>
+			<img src="data:"""+r_json['photo']['type']+"""+;base64,"""+r_json['photo']['data']+"""" align="right"/>
 		</div>
 	"""
-
-	# clear vars
-	responsible_user = None
-	responsible_photoData = None
-	responsible_photoType = None
 	
 	return ret_html
 
@@ -170,17 +168,20 @@ def val_response():
 			resp = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person", params = params)
 			if resp.status_code==200:
 				r_json = resp.json()
-				# clear secret
-				user.clearSecret()
-				global responsible_user
-				global responsible_photoData
-				global responsible_photoType
-				responsible_user = name
-				responsible_photoData = photo_data
-				responsible_photoType = photo_type
-				# now notice the searched user that their secret has been used
-				secret_submitted.set()
-				break
+			else:
+				abort(500)
+			# clear secret
+			user.secret=None
+			
+			for user2 in user_list:
+				if user2.key==key:
+					user.visitor_token=user2.access_token
+					break
+
+			# now notice the searched user that their secret has been used
+			user.event.set()
+			break
+
 	if(flag_found == 0):
 		return render_template("validate.html", notFound='yes', secret=reqSecret, username=name, key=key, photo_data = photo_data, photo_type=photo_type)	
 	return render_template("validate.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type, secret=reqSecret, reqUser=r_json['name'], reqPhoto=r_json['photo']['data'], reqPhotoType=r_json['photo']['type'])
@@ -203,4 +204,4 @@ def Authentication():
 
 if __name__ == '__main__':
 
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True, threaded=True)
