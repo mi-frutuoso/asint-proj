@@ -3,6 +3,7 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 from flask import abort
+from flask_cors import CORS
 import json
 import requests
 
@@ -16,6 +17,7 @@ import time
 api_file='logAPI.txt'
 
 app = Flask(__name__)
+CORS(app)
 
 # function to register log access
 def write_log(filename, logtype, params):
@@ -25,25 +27,14 @@ def write_log(filename, logtype, params):
     f.close()
 
 # room location endpoint
-@app.route('/location/<id>')
+@app.route('/rooms/<id>')
 def room_location(id):
 	
-	r = requests.get('http://'+server_rooms+'/location/'+id)
+	r = requests.get('http://'+server_rooms+'/rooms/'+id)
 	if r.status_code!=200:
 		abort(r.status_code)
 	json_r = r.json()
-	write_log(api_file, 'ROOMS', 'location -- id:'+id+' (code:'+str(r.status_code)+')')
-	return jsonify(json_r)
-
-# room timetable endpoint
-@app.route('/timetable/<id>')
-def room_timetable(id):
-	
-	r = requests.get('http://'+server_rooms+'/timetable/'+id)
-	if r.status_code!=200:
-		abort(r.status_code)
-	json_r = r.json()
-	write_log(api_file, 'ROOMS', 'timetable -- id:'+id+' (code:'+str(r.status_code)+')')
+	write_log(api_file, 'ROOMS', 'get -- id:'+id+' (code:'+str(r.status_code)+')')
 	return jsonify(json_r)
 
 # canteen menu endpoint

@@ -74,7 +74,11 @@ def canteen():
 
 	name, key, photo_data, photo_type = Authentication()
 
-	return render_template("canteen.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type)
+	resp = requests.get("http://127.0.0.1:5100/menus")
+	if resp.status_code==200:
+		r_json = resp.json()
+
+	return render_template("canteen.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type, menus=r_json)
 
 @app.route('/validation')
 def validate():

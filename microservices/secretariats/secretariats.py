@@ -31,8 +31,7 @@ def add_secretariat():
 
         id=st.store(location, name, description, opening_hours)
         ret = {'answer':id}
-        jsonify(ret)
-        return ret # returns an answer (client is expecting a json, but the protocol can be changed)
+        return jsonify(ret) # returns an answer (client is expecting a json, but the protocol can be changed)
     else:
         return "XXXX" #pass
 
@@ -43,7 +42,7 @@ def get_secretariat(key):
     s = st.getSecretariat(key) # key = ID
     if s == None:
         return "get secretariat error or inexisting"
-    return s
+    return jsonify(s)
 
 
 # list secretariat locations
@@ -61,8 +60,7 @@ def edit_secretariat(id):
         rcvd_json = request.get_json(force=True)
         answer = st.edit(id, rcvd_json)
         ret = {'answer':answer}
-        jsonify(ret)
-        return ret
+        return jsonify(ret)
     else:
         return "XXXX" #pass
 

@@ -22,11 +22,15 @@
 				<img src="data:{{photo_type}};base64,{{photo_data}}" align="right"/>
 			</div>
 		</div>
-
-<h1>Scan from File:</h1>
-<input type="file" id="file-selector">
-<b>Detected QR code: </b>
-<span id="file-qr-result">None</span>
+		<div class="row xs-3">
+			<h2>Upload QR code:</h2>
+			<input type="file" id="file-selector">
+			<h2>QR code scanning results:</h2>
+			<span id="file-qr-result">None</span>
+		</div>
+		<div class="rox xs-3" style="padding: 5px;">
+			<p><a href='/?key={{ key }}'>Return to the previous page</a></p>
+		</div>
 	</div>
 
 	<script type="module">
@@ -37,7 +41,7 @@
 		const fileSelector = document.getElementById('file-selector');
 		const fileQrResult = document.getElementById('file-qr-result');
 
-
+		var xhttp = new XMLHttpRequest();
 
 		fileSelector.addEventListener('change', event => {
 			const file = fileSelector.files[0];
@@ -45,9 +49,22 @@
 				return;
 			}
 			QrScanner.scanImage(file)
-				.then(result => console.log(result))
-				.catch(error => console.log(error || 'No QR code found.'));
+				.then(result => {
+					xhttp.open("GET", "http://127.0.0.1:5100/" + result, true);
+					xhttp.send(); 			
+				})
+				.catch(error => alert("No QR code found"));
 		});
+
+
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var j=JSON.parse(this.responseText);
+				document.getElementById("file-qr-result").innerHTML =
+				JSON.stringify(j,null,3);
+			}
+		};
+
 	</script>
 
 </body>
