@@ -9,6 +9,8 @@ from flask import send_file
 import json
 import requests
 from users import User
+import time
+
 
 import string
 import random
@@ -25,6 +27,8 @@ clientSecret = "dV8OqovYTvGa/xJhh5G5+Ciyz40LlG2f8KEk7hfRexhjKsJvT5xqbwdAbO+aRn5/
 
 fenixLoginpage= "https://fenix.tecnico.ulisboa.pt/oauth/userdialog?client_id=%s&redirect_uri=%s"
 fenixacesstokenpage = 'https://fenix.tecnico.ulisboa.pt/oauth/access_token'
+
+log_file='logAuth.txt'
 
 
 app = Flask(__name__)
@@ -182,6 +186,8 @@ def val_response():
 			user.event.set()
 			break
 
+	write_log(log_file, 'VALIDATION', 'Person1:'+name+' Person2:'+r_json['name'])
+
 	if(flag_found == 0):
 		return render_template("validate.html", notFound='yes', secret=reqSecret, username=name, key=key, photo_data = photo_data, photo_type=photo_type)	
 	return render_template("validate.html", username=name, key=key, photo_data = photo_data, photo_type=photo_type, secret=reqSecret, reqUser=r_json['name'], reqPhoto=r_json['photo']['data'], reqPhotoType=r_json['photo']['type'])
@@ -200,7 +206,12 @@ def Authentication():
 					return r_json['name'], key, r_json['photo']['data'], r_json['photo']['type']
 	abort(401)
 
-
+# function to register log access
+def write_log(filename, logtype, params):
+    timestamp=time.strftime("%b %d %Y %H:%M:%S")
+    f = open(filename, "a+")
+    f.write("[%s] %s - %s\n" %(logtype, timestamp, params))
+    f.close()
 
 if __name__ == '__main__':
 

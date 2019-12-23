@@ -214,7 +214,7 @@ def show_logs():
             f.close()
 
         try:    
-            f = open(auth_file, "r") # TODO: change dir file
+            f = open('../mobile/'+auth_file, "r")
             for line in f:
                 auth_list.append(line)
         except IOError:
@@ -240,7 +240,7 @@ def clear_logs():
         print('%s not found' %api_file)
 
     try:    
-        open(auth_file, 'w').close() # TODO: change dir file
+        open('../mobile/'+auth_file, 'w').close()
     except IOError:
         print('%s not found' %auth_file)
     return render_template('logs.html')
