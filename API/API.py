@@ -29,46 +29,55 @@ def write_log(filename, logtype, params):
 # room location endpoint
 @app.route('/rooms/<id>')
 def room_location(id):
-	
-	r = requests.get('http://'+server_rooms+'/rooms/'+id)
-	if r.status_code!=200:
-		abort(r.status_code)
-	json_r = r.json()
-	write_log(api_file, 'ROOMS', 'get -- id:'+id+' (code:'+str(r.status_code)+')')
-	return jsonify(json_r)
+	try:
+		r = requests.get('http://'+server_rooms+'/rooms/'+id)
+		if r.status_code!=200:
+			abort(r.status_code)
+		json_r = r.json()
+		write_log(api_file, 'ROOMS', 'get -- id:'+id+' (code:'+str(r.status_code)+')')
+		return jsonify(json_r)
+	except requests.exceptions.RequestException:
+		abort(500)
 
 # canteen menu endpoint
 @app.route('/menus')
 def canteen_menus():
-	
-	r = requests.get('http://'+server_canteen+'/menus')
-	if r.status_code!=200:
-		abort(r.status_code)
-	json_r = r.json()
-	write_log(api_file, 'CANTEEN', 'menus (code:'+str(r.status_code)+')')
-	return jsonify(json_r)
+	try:
+		r = requests.get('http://'+server_canteen+'/menus')
+		if r.status_code!=200:
+			abort(r.status_code)
+		json_r = r.json()
+		write_log(api_file, 'CANTEEN', 'menus (code:'+str(r.status_code)+')')
+		return jsonify(json_r)
+	except requests.exceptions.RequestException:
+		abort(500)
 
 # secretariat listall endpoint
 @app.route('/secretariats')	
 def list_secretariats():
-
-	r = requests.get('http://'+server_secretariats+'/listAll')
-	if r.status_code!=200:
-		abort(r.status_code)
-	json_r = r.json()
-	write_log(api_file, 'SECRETARIATS', 'list (code:'+str(r.status_code)+')')
-	return jsonify(json_r)
+	try:
+		r = requests.get('http://'+server_secretariats+'/listAll')
+		if r.status_code!=200:
+			abort(r.status_code)
+		json_r = r.json()
+		write_log(api_file, 'SECRETARIATS', 'list (code:'+str(r.status_code)+')')
+		return jsonify(json_r)
+	except requests.exceptions.RequestException:
+		abort(500)
 
 # get secretariat endpoint
 @app.route('/secretariats/<id>')	
 def get_secretariat(id):
 	
-	r = requests.get('http://'+server_secretariats+'/getSecretariat/'+id)
-	if r.status_code!=200:
-		abort(r.status_code)
-	json_r = r.json()
-	write_log(api_file, 'SECRETARIATS', 'get - id:'+id+' (code:'+str(r.status_code)+')')
-	return jsonify(json_r)
+	try:
+		r = requests.get('http://'+server_secretariats+'/getSecretariat/'+id)
+		if r.status_code!=200:
+			abort(r.status_code)
+		json_r = r.json()
+		write_log(api_file, 'SECRETARIATS', 'get - id:'+id+' (code:'+str(r.status_code)+')')
+		return jsonify(json_r)
+	except requests.exceptions.RequestException:
+		abort(500)
 
 
 if __name__ == '__main__':
