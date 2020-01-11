@@ -16,9 +16,9 @@ import string
 import random
 import threading
 
-redirect_uri = "http://127.0.0.1:5000/userAuth" # this is the address of the page on this app
+redirect_uri = "http://direita.dynu.net:5000/userAuth" # this is the address of the page on this app
 
-uri_api = "http://127.0.0.1:5100"
+uri_api = "http://direita.dynu.net:5100"
 
 
 client_id= "1695915081465951" # copy value from the app registration
@@ -234,4 +234,4 @@ def write_log(filename, logtype, params):
 
 if __name__ == '__main__':
 
-    app.run(port=5000, debug=True, threaded=True)
+    app.run(port=5000, debug=True, threaded=True, host='0.0.0.0')
