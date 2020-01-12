@@ -175,16 +175,19 @@ def send_edit(id):
 # handle delete request
 @app.route('/deleteSecretariat/<id>')
 def send_delete(id):
-    try:
-        r = requests.get('http://'+server_secretariats+'/deleteSecretariat/'+id) # forward delete request to API of microservice Secretariats
-        write_log(backend_file, 'SECRETARIAT', 'admin - delete - id:'+id+' (code:'+str(r.status_code)+')')
-        if(r.status_code == 200):
-            return "ok"
-        return "not ok"
-    except requests.exceptions.RequestException as e:
-        errcode = type(e).__name__
-        write_log(backend_file, 'SECRETARIAT', 'admin - delete - error:'+errcode)
-        return render_template('secretariats.html', error='yes')
+    if 'username' in session:
+        try:
+            r = requests.get('http://'+server_secretariats+'/deleteSecretariat/'+id) # forward delete request to API of microservice Secretariats
+            write_log(backend_file, 'SECRETARIAT', 'admin - delete - id:'+id+' (code:'+str(r.status_code)+')')
+            if(r.status_code == 200):
+                return "ok"
+            return "not ok"
+        except requests.exceptions.RequestException as e:
+            errcode = type(e).__name__
+            write_log(backend_file, 'SECRETARIAT', 'admin - delete - error:'+errcode)
+            return render_template('secretariats.html', error='yes')
+    else:
+        abort(401)
 
 # show log files
 @app.route('/frontend/logs')

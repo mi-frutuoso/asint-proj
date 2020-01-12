@@ -195,13 +195,12 @@ def val_response():
 
 				# now notice the searched user that their secret has been used
 				user.event.set()
+				write_log(log_file, 'VALIDATION', 'Person1:'+name+' Person2:'+r_json['name'])
 				break
 			except requests.exceptions.RequestException as e:
 				errcode = type(e).__name__
 				extra_str = ", but an error occurred (%s)" % errcode
 				return render_template("validate.html", notFound='yes', secret=reqSecret+extra_str, username=name, key=key, photo_data = photo_data, photo_type=photo_type)
-
-	write_log(log_file, 'VALIDATION', 'Person1:'+name+' Person2:'+r_json['name'])
 
 	if(flag_found == 0):
 		return render_template("validate.html", notFound='yes', secret=reqSecret, username=name, key=key, photo_data = photo_data, photo_type=photo_type)	
